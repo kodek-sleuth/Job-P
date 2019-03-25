@@ -4,7 +4,7 @@ from Models.portal import *
 from flask.views import MethodView
 from flask import current_app, Blueprint
 
-emp_auth=Blueprint('emp_auth', __name__)
+empl_auth=Blueprint('empl_auth', __name__)
 
 #Creating Class based views for Registration, Login and Logout as well as The Token
 class RegistrationView(MethodView):
@@ -16,18 +16,15 @@ class RegistrationView(MethodView):
             email=request_data["Email"]
             password=request_data["Password"]
             country=request_data["Country"]
-            main_stack=request_data["Main Expertise"]
-            other_stacks=request_data["Other Skills"]
-            work_status = request_data["Work Status"]
-            dev_bio = request_data["Developer Biography"]
+            company=request_data["Company"]
 
             try:
                 emp=Employee.query.filter(username=username).first()
                 if emp:
                     response={
-                        "Message":"An account already exists with that Employee name"
+                        "Message":"An account already exists with that Employer name"
                     }
-                    return make_response(jsonify(response)), 409
+                    return make_response(jsonify(response)), 202
                 
                 elif '~!@#$%&*():;+=-/' in username:
                     response={
@@ -37,9 +34,9 @@ class RegistrationView(MethodView):
                     return make_response(jsonify(response)), 401
 
             except:
-                Employee.addEmployee(name, username, email, password, work_status, country, main_stack, other_stacks, dev_bio)
+                Employer.addEmployer(name, username, email, password, company, country)
                 response={
-                        "Message":"You have successfully Created an Employee account"
+                        "Message":"You have successfully Created an Employer account"
                     }
                 return make_response(jsonify(response)), 201
     
@@ -51,29 +48,30 @@ class RegistrationView(MethodView):
 
 class LoginView(MethodView):
     def post(self):
-        request_data = request.get_json(force=True)
-        emp=Employee.query.filter_by(username=request_data["Username"]).first()
-        if emp.username==request_data["Username"] and emp.password==request_data["Password"]:
-            response={
-                "Message":"You have successfully Logged In"
-            }
+        try:
+            request_data = request.get_json(force=True)
+            emp=Employer.query.filter_by(username=request_data["Username"]).first()
+            if emp.username==request_data["Username"] and emp.password==request_data["Password"]:
+                response={
+                    "Message":"You have successfully Logged In"
+                }
+                
+                return make_response(jsonify(response)), 201
             
-            return make_response(jsonify(response)), 201
-        
-        elif emp.password!=request_data["Password"]:
-            response={
-                "Message":"Invalid Password"
-            }
-            return make_response(jsonify(response)), 401
-        
-        elif emp.username!=request_data["Username"]:
-            response={
-                "Message":"Invalid username"
-            }
-            return make_response(jsonify(response)), 401
+            elif emp.password!=request_data["Password"]:
+                response={
+                    "Message":"Invalid Password"
+                }
+                return make_response(jsonify(response)), 401
+            
+            elif emp.username!=request_data["Username"]:
+                response={
+                    "Message":"Invalid username"
+                }
+                return make_response(jsonify(response)), 401
                 
         
-        else:
+        except:
             response={
                 "Message":"Try checking Your Credentials and Try again"
             }
@@ -85,5 +83,5 @@ registrationview=RegistrationView.as_view('registrationview')
 loginview=LoginView.as_view('loginview')
 
 #adding routes to the Views we just created
-emp_auth.add_url_rule('/auth/emp/signup', view_func=registrationview, methods=['POST'])
-emp_auth.add_url_rule('/auth/emp/Login', view_func=loginview, methods=['POST'])
+empl_auth.add_url_rule('/auth/empl/signup', view_func=registrationview, methods=['POST'])
+empl_auth.add_url_rule('/auth/empl/Login', view_func=loginview, methods=['POST'])

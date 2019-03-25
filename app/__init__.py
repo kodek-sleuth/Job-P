@@ -13,7 +13,7 @@ def create_app(config_name):
     app.config.from_object(app_config[config_name])
     app.config['SWAGGER'] = {
         'swagger': '2.0',
-        'title': 'FoodHub Delivery-API',
+        'title': 'Job-Portal-API ',
         'description': "The innovative Job-Portal API is an application that allows\
         Programming Job Seekers to find jobs worlwide from a variety of Jobs and for Employers to get Employees\
         \nThis is a RESTful API built in python using the Flask Framework.\
@@ -54,8 +54,12 @@ def create_app(config_name):
         'specs_route': '/apidocs/'
     }
 
-    from app.Routes.Employee.views import emp_auth
+    from app.Employ_Auth.Employer.views import empl_auth
+    from app.Employ_Auth.Employee.views import emp_auth
+    from app.Jobs.auth.views import jobs_auth
+    app.register_blueprint(empl_auth)
     app.register_blueprint(emp_auth)
+    app.register_blueprint(jobs_auth)
     
     db.init_app(app) 
     CORS(app)

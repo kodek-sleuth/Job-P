@@ -55,6 +55,8 @@ class Employee(db.Model):
     main_stack = db.Column(db.String(25), nullable=False)
     other_stacks = db.Column(db.String(100))
     dev_biography = db.Column(db.String(1000))
+    profile_cv = db.Column(db.LargeBinary)
+    profile_picture = db.Column(db.LargeBinary)
     jobsemployees = db.relationship('JobsEmployees', lazy=True, backref='jobs')
 
 
@@ -117,10 +119,10 @@ class JobsEmployer(db.Model):
         self.employer_id = employer_id
     
     def addJob(_title, _description, _main_stack, _other_stack, _job_type, _employer_id):
-        new_Job = JobsEmployer(title=_title, description=_description, main_stack=_main_stack, other_stacks=_other_stack, employer_id=_employer_id)
+        new_Job = JobsEmployer(title=_title, description=_description, main_stack=_main_stack, other_stacks=_other_stack, job_type=_job_type, employer_id=_employer_id)
         db.session.add(new_Job)
         db.session.commit()
-    
+
     def removeJob(_title):
         job_delete = JobsEmployer.query.filter_by(title=_title).delete()
         db.session.commit()
@@ -149,15 +151,14 @@ class JobsEmployees(db.Model):
     main_stack = db.Column(db.String(25), nullable=False)
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
 
-    def __init__(self, title, interview, main_stack, employee_id):
+    def __init__(self, title, main_stack, employee_id):
         self.title = title
-        self.interview= interview
         self.main_stack = main_stack
         self.employee_id = employee_id
 
 
-    def addJobEmp(_title, _interview, _main_stack, _employee_id):
-        new_Job = JobsEmployees(title=_title, interview=_interview, main_stack=_main_stack, employee_id=_employee_id)
+    def addJobEmp(_title, _main_stack, _employee_id):
+        new_Job = JobsEmployees(title=_title, main_stack=_main_stack, employee_id=_employee_id)
         db.session.add(new_Job)
         db.session.commit()
 
