@@ -8,11 +8,12 @@ class Employer(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(30), unique=True, nullable=False)
-    company = db.Column(db.String(30))
+    company = db.Column(db.String(30), default='None')
     country = db.Column(db.String(30), nullable=False)
     password = db.Column(db.String(50), nullable=False)
     dev_biography = db.Column(db.String(1000))
     profile_picture = db.Column(db.LargeBinary)
+    member_since = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     jobs_of_employer = db.relationship('Jobs_Of_Employer', lazy=True, backref='jobs')
     inbox = db.relationship('Inbox', lazy=True, backref='from_employer')
 
@@ -143,8 +144,9 @@ class Jobs_Of_Employer(db.Model):
     
     def __repr__(self):
         jobs_object={
-            "Job": self.title,
-            "Stack": self.main_stack
+            "Job Title": self.title,
+            "Stack": self.main_stack,
+            "Job Type":self.job_type
         }
 
         return json.dumps(jobs_object)
@@ -152,7 +154,7 @@ class Jobs_Of_Employer(db.Model):
 class Job_Applicants(db.Model):
     __tablename__='job_applicants'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name =  db.Column(db.String(100), nullable=False, unique=True)
+    name =  db.Column(db.String(100), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     main_stack = db.Column(db.String(25), nullable=False)
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
@@ -172,7 +174,8 @@ class Job_Applicants(db.Model):
     
     def __repr__(self):
         job_applicants={
-            "Name": self.name,
+            "Job Title": self.title,
+            "Applicant": self.name,
             "Stack": self.main_stack
         }
 
@@ -184,26 +187,30 @@ class Inbox(db.Model):
     username = db.Column(db.String(30), nullable=False)
     subject = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(1000), nullable=False)
+    sender =  db.Column(db.String(30), nullable=False)
     Date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     employer_id = db.Column(db.Integer, db.ForeignKey('employer.id'))
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
 
-    def __init__(self, username, subject, description, employer_id, employee_id):
+    def __init__(self, username, subject, description, sender, employer_id, employee_id):
         self.username = username
         self.subject = subject
         self.description = description
         self.employer_id = employer_id
         self.employee_id = employee_id
+        self.sender = sender
     
-    def sendMessage(_username, _subject, _description, _employer_id, employee_id):
-        sent_message = Inbox(username=_username, subject=_subject, description=_description, employer_id=_employer_id, employee_id=_employer_id)
+    def sendMessage(_username, _subject, _description, _sender, _employer_id, employee_id):
+        sent_message = Inbox(username=_username, subject=_subject, description=_description, sender=_sender, employer_id=_employer_id, employee_id=_employer_id)
         db.session.add(sent_message)
         db.session.commit()
     
     def __repr__(self):
         message={
             "Subject": self.subject,
-            "To": self.username
+            "To": self.username, 
+            "From": self.sender,
+            "Description": self.description
         }
 
         return json.dumps(message)

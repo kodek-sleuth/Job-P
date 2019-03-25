@@ -84,5 +84,5 @@ registrationview=RegistrationView.as_view('registrationview')
 loginview=LoginView.as_view('loginview')
 
 #adding routes to the Views we just created
-empl_auth.add_url_rule('/auth/empl/signup', view_func=registrationview, methods=['POST'])
-empl_auth.add_url_rule('/auth/empl/Login', view_func=loginview, methods=['POST'])
+empl_auth.add_url_rule('/employer/signup', view_func=registrationview, methods=['POST'])
+empl_auth.add_url_rule('/employer/Login', view_func=loginview, methods=['POST'])

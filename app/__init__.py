@@ -57,9 +57,11 @@ def create_app(config_name):
     from app.Employ_Auth.Employer.views import empl_auth
     from app.Employ_Auth.Employee.views import emp_auth
     from app.Jobs.auth.views import jobs_auth
+    from app.Jobs.routes.views import jobs
     app.register_blueprint(empl_auth)
     app.register_blueprint(emp_auth)
     app.register_blueprint(jobs_auth)
+    app.register_blueprint(jobs)
     
     db.init_app(app) 
     CORS(app)

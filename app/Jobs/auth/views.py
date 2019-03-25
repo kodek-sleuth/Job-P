@@ -31,41 +31,24 @@ class Post_Job(MethodView):
 
 class Apply_Job(MethodView):
     def post(self, username):
-        try:
-            request_data = request.get_json(force=True)
-            name = request_data["Name"]
-            title=request_data["Job Title"]
-            main_stack=request_data["Main Skill"]
 
-            try:
-                check_username = Employee.query.filter_by(username=username).first()
+        request_data = request.get_json(force=True)
+        title=request_data["Job Title"]
+    
+        check_credentials = Employee.query.filter_by(username=username).first()
 
-                check_job=Jobs_Of_Employer.query.filter_by(title=title).first()
-                
-                if check_username.name==name and check_job.title==title:
-                    Job_Applicants.addJobEmp(name, title, main_stack, check_username.id, check_job.id)
-                    response={
-                                "Message":"You Have Successfully Applied For This Job"
-                        }
-                    return make_response(jsonify(response)), 201
-
-                
-                else:
-                    response={
-                            "Message":"Must Sign In to Apply for This Job"
-                        }
-                    return make_response(jsonify(response)), 401
-            
-            except:
-
-                response={
-                        "Message":"Invalid Information"
-                    }
-                return make_response(jsonify(response)), 501
+        check_job=Jobs_Of_Employer.query.filter_by(title=title).first()
         
-        except:
+        if  check_credentials.name and check_job.title==title:
+            Job_Applicants.addJobEmp(check_credentials.name, title,  check_credentials.main_stack,  check_credentials.id, check_job.id)
             response={
-                        "Message":"Invalid Credentials, Please enter Job Title and Main Skill"
+                        "Message":"You Have Successfully Applied For This Job"
+                }
+            return make_response(jsonify(response)), 201
+        
+        else:
+            response={
+                    "Message":"Must Sign In to Apply for This Job"
                 }
             return make_response(jsonify(response)), 401
 
@@ -74,7 +57,7 @@ post_job=Post_Job.as_view('Post_Job')
 apply_job=Apply_Job.as_view('Apply_Job')
 
 #adding routes to the Views we just created
-jobs_auth.add_url_rule('/user/<string:username>/post', view_func=post_job, methods=['POST'])
-jobs_auth.add_url_rule('/user/<string:username>/apply', view_func=apply_job, methods=['POST'])
+jobs_auth.add_url_rule('/employer/<string:username>/post', view_func=post_job, methods=['POST'])
+jobs_auth.add_url_rule('/employee/<string:username>/apply', view_func=apply_job, methods=['POST'])
 
 
