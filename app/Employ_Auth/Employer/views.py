@@ -17,6 +17,7 @@ class RegistrationView(MethodView):
             password=request_data["Password"]
             country=request_data["Country"]
             company=request_data["Company"]
+            dev_bio = request_data["Company Biography"]
 
             try:
                 emp=Employee.query.filter(username=username).first()
@@ -34,7 +35,7 @@ class RegistrationView(MethodView):
                     return make_response(jsonify(response)), 401
 
             except:
-                Employer.addEmployer(name, username, email, password, company, country)
+                Employer.addEmployer(name, username, email, password, dev_bio, company, country)
                 response={
                         "Message":"You have successfully Created an Employer account"
                     }

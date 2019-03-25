@@ -17,7 +17,7 @@ class Post_Job(MethodView):
             job_type=request_data["Job Type"]
 
             check_username = Employer.query.filter_by(username=username).first()
-            emp = JobsEmployer.addJob(title, description, main_stack, other_stacks, job_type, check_username.id)
+            emp = Jobs_Of_Employer.addJob(title, description, main_stack, other_stacks, job_type, check_username.id)
             response={
                         "Message":"You have successfully Posted Job"
                 }
@@ -33,16 +33,35 @@ class Apply_Job(MethodView):
     def post(self, username):
         try:
             request_data = request.get_json(force=True)
+            name = request_data["Name"]
             title=request_data["Job Title"]
             main_stack=request_data["Main Skill"]
 
-            check_username = Employee.query.filter_by(username=username).first()
-            JobsEmployees.addJobEmp(title, main_stack, check_username.id)
-            response={
-                        "Message":"You Have Successfully Applied For This Job"
-                }
-            return make_response(jsonify(response)), 201
+            try:
+                check_username = Employee.query.filter_by(username=username).first()
 
+                check_job=Jobs_Of_Employer.query.filter_by(title=title).first()
+                
+                if check_username.name==name and check_job.title==title:
+                    Job_Applicants.addJobEmp(name, title, main_stack, check_username.id, check_job.id)
+                    response={
+                                "Message":"You Have Successfully Applied For This Job"
+                        }
+                    return make_response(jsonify(response)), 201
+
+                
+                else:
+                    response={
+                            "Message":"Must Sign In to Apply for This Job"
+                        }
+                    return make_response(jsonify(response)), 401
+            
+            except:
+
+                response={
+                        "Message":"Invalid Information"
+                    }
+                return make_response(jsonify(response)), 501
         
         except:
             response={
@@ -50,7 +69,7 @@ class Apply_Job(MethodView):
                 }
             return make_response(jsonify(response)), 401
 
-#
+
 post_job=Post_Job.as_view('Post_Job')
 apply_job=Apply_Job.as_view('Apply_Job')
 
