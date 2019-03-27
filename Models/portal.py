@@ -13,9 +13,9 @@ class Employer(db.Model):
     password = db.Column(db.String(50), nullable=False)
     dev_biography = db.Column(db.String(1000))
     profile_picture = db.Column(db.LargeBinary)
+    Date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     member_since = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     jobs_of_employer = db.relationship('Jobs_Of_Employer', lazy=True, backref='jobs')
-    inbox = db.relationship('Inbox', lazy=True, backref='from_employer')
 
     def __init__(self, name, username, email, password, company, country, dev_biography):
         self.name = name
@@ -44,7 +44,9 @@ class Employer(db.Model):
         employer_object={
             "Name": self.name,
             "Company": self.company, 
-            "Country": self.country
+            "Country": self.country,
+            "Username": self.username,
+            "Date_Posted":self.Date_posted.strftime('%Y-%m-%d')
         }
 
         return json.dumps(employer_object)
@@ -63,8 +65,8 @@ class Employee(db.Model):
     dev_biography = db.Column(db.String(1000))
     profile_cv = db.Column(db.LargeBinary)
     profile_picture = db.Column(db.LargeBinary)
+    Date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     job_applicants = db.relationship('Job_Applicants', lazy=True, backref='jobs')
-    inbox = db.relationship('Inbox', lazy=True, backref='from_employee')
 
     def __init__(self, name, username, email, password, work_status, country, main_stack, other_stacks, dev_biography):
         self.name = name
@@ -100,7 +102,9 @@ class Employee(db.Model):
         employee_object={
             "Name": self.name,
             "Expertise": self.main_stack, 
-            "work_status": self.work_status
+            "Status": self.work_status,
+            "Username": self.username,
+             "Date_Posted":self.Date_posted.strftime('%Y-%m-%d')
         }
 
         return json.dumps(employee_object)
@@ -114,6 +118,7 @@ class Jobs_Of_Employer(db.Model):
     main_stack = db.Column(db.String(25), nullable=False)
     other_stacks = db.Column(db.String(100), nullable=False)
     job_type = db.Column(db.String(20), nullable=False)
+    Date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     employer_id = db.Column(db.Integer, db.ForeignKey('employer.id'))
     job_applicants = db.relationship('Job_Applicants', lazy=True, backref='applicants')
 
@@ -144,9 +149,11 @@ class Jobs_Of_Employer(db.Model):
     
     def __repr__(self):
         jobs_object={
-            "Job Title": self.title,
+            "Job_Title": self.title,
             "Stack": self.main_stack,
-            "Job Type":self.job_type
+            "Job_Type":self.job_type,
+            "Description":self.description,
+            "Date_Posted":self.Date_posted.strftime('%Y-%m-%d')
         }
 
         return json.dumps(jobs_object)
@@ -174,7 +181,8 @@ class Job_Applicants(db.Model):
     
     def __repr__(self):
         job_applicants={
-            "Job Title": self.title,
+	    "Id": str(self.id),
+            "Job_Title": self.title,
             "Applicant": self.name,
             "Stack": self.main_stack
         }
@@ -189,19 +197,15 @@ class Inbox(db.Model):
     description = db.Column(db.String(1000), nullable=False)
     sender =  db.Column(db.String(30), nullable=False)
     Date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    employer_id = db.Column(db.Integer, db.ForeignKey('employer.id'))
-    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
 
-    def __init__(self, username, subject, description, sender, employer_id, employee_id):
+    def __init__(self, username, subject, description, sender):
         self.username = username
         self.subject = subject
         self.description = description
-        self.employer_id = employer_id
-        self.employee_id = employee_id
         self.sender = sender
     
-    def sendMessage(_username, _subject, _description, _sender, _employer_id, employee_id):
-        sent_message = Inbox(username=_username, subject=_subject, description=_description, sender=_sender, employer_id=_employer_id, employee_id=_employer_id)
+    def sendMessage(_username, _subject, _description, _sender):
+        sent_message = Inbox(username=_username, subject=_subject, description=_description, sender=_sender)
         db.session.add(sent_message)
         db.session.commit()
     
@@ -210,7 +214,8 @@ class Inbox(db.Model):
             "Subject": self.subject,
             "To": self.username, 
             "From": self.sender,
-            "Description": self.description
+            "Description": self.description,
+            "Date_Posted":self.Date_posted.strftime('%Y-%m-%d')
         }
 
         return json.dumps(message)

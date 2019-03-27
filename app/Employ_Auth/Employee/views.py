@@ -81,10 +81,59 @@ class LoginView(MethodView):
             return make_response(jsonify(response)), 401
 
 
+class UpdateView(MethodView):
+    def put(self, username):
+        try:
+            check_user = Employee.query.filter_by(username=username).first()
+            if check_user:
+                request_data=request.get_json(force=True)
+
+                if 'Username' in request_data and 'Name' in request_data and 'Main Expertise' in request_data and 'Developer Biography' in request_data and 'Other Skills' in request_data and 'Password' in request_data and 'Country' in request_data and 'Email' in request_data and 'Work Status' in request_data:
+                    
+                    username=request_data['Username']
+                    name = request_data['Name']
+                    password=request_data['Password']
+                    main_stack=request_data['Main Expertise']
+                    country=request_data['Country']
+                    work_status=request_data['Work Status']
+                    other_stacks=request_data['Other Skills']
+                    email=request_data['Email']
+                    dev_biography=request_data['Developer Biography']
+                
+                    check_user.username=username
+                    check_user.name=name
+                    check_user.password=password
+                    check_user.main_stack=main_stack
+                    check_user.country=country
+                    check_user.work_status=work_status
+                    check_user.other_stacks=other_stacks
+                    check_user.email=email
+                    check_user.dev_biography=dev_biography
+                    
+                    
+                    db.session.commit()
+                    
+                    response={
+                        "Message": "Successfully Updated Profile"
+                    }
+                    return make_response(jsonify(response)), 200
+
+                
+        except:
+            response={
+                "Message":"Failed To Update Information"
+            }
+
+
+
+
+
 #Creating View Function/Resources
 registrationview=RegistrationView.as_view('registrationview')
 loginview=LoginView.as_view('loginview')
+updateview=UpdateView.as_view('updateview')
 
 #adding routes to the Views we just created
 emp_auth.add_url_rule('/employee/signup', view_func=registrationview, methods=['POST'])
 emp_auth.add_url_rule('/employee/login', view_func=loginview, methods=['POST'])
+emp_auth.add_url_rule('/employee/<string:username>/update', view_func=updateview, methods=['PUT'])

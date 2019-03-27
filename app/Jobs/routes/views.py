@@ -132,6 +132,14 @@ def get_employees():
     toJson = json.loads(empToStr)
     return make_response(jsonify(toJson)), 200
 
+@jobs.route('/employers', methods=['GET'])
+def get_employers():
+    emp = Employer.query.all()
+    empToStr = str(emp)
+    toJson = json.loads(empToStr)
+    return make_response(jsonify(toJson)), 200
+
+
 @jobs.route('/job/applicants/<int:job_id>', methods=['GET'])
 def get_applicants_of_job(job_id):
     emp_job = Jobs_Of_Employer.query.filter_by(id=job_id).first()
@@ -152,9 +160,9 @@ def send_message_to_employer(employee_username):
         check_employer = Employer.query.filter_by(username=username).first()
 
         if check_employee and check_employer:
-            Inbox.sendMessage(check_employer.username, subject, description, check_employee.username, check_employee.id, check_employer.id)
+            Inbox.sendMessage(check_employer.username, subject, description, check_employee.username)
             response={
-                "Message": "Successfully Sent Message To "+check_employer.name
+                "Message": "Successfully Sent Message To "+check_employer.username
             }
 
             return make_response(jsonify(response)), 200
@@ -185,9 +193,9 @@ def send_message_to_employee(employer_username):
         check_employer = Employer.query.filter_by(username=employer_username).first()
 
         if check_employee and check_employer:
-            Inbox.sendMessage(check_employee.username, subject, description, check_employer.username, check_employee.id, check_employer.id)
+            Inbox.sendMessage(check_employee.username, subject, description, check_employer.username)
             response={
-                "Message": "Successfully Sent Message To"+check_employee.name
+                "Message": "Successfully Sent Message To "+check_employee.username
             }
 
             return make_response(jsonify(response)), 200
@@ -210,27 +218,54 @@ def send_message_to_employee(employer_username):
 @jobs.route('/employee/inbox/<string:username>/received', methods=['GET'])
 def get_employee_received(username):
     emptli=[]
-    emp = Employee.query.filter_by(username=username).first()
-    to_str = str(emp.inbox)
+    emp = Inbox.query.all()
+    to_str = str(emp)
     new_data = json.loads(to_str)
+
     for user in new_data:
         if user['To']==username:
             emptli.append(user)
-    
     return make_response(jsonify(emptli)), 200
 
 
 @jobs.route('/employer/inbox/<string:username>/received', methods=['GET'])
 def get_employer_received(username):
     emptli=[]
-    emp = Employer.query.filter_by(username=username).first()
-    to_str = str(emp.inbox)
+    emp = Inbox.query.all()
+    to_str = str(emp)
     new_data = json.loads(to_str)
+
     for user in new_data:
         if user['To']==username:
             emptli.append(user)
-    
     return make_response(jsonify(emptli)), 200
+
+@jobs.route('/employer/inbox/<string:username>/sent', methods=['GET'])
+def get_employer_sent(username):
+    emptli=[]
+    emp = Inbox.query.all()
+    to_str = str(emp)
+    new_data = json.loads(to_str)
+
+    for user in new_data:
+        if user['From']==username:
+            emptli.append(user)
+    return make_response(jsonify(emptli)), 200
+
+
+@jobs.route('/employee/inbox/<string:username>/sent', methods=['GET'])
+def get_employee_sent(username):
+    emptli=[]
+    emp = Inbox.query.all()
+    to_str = str(emp)
+    new_data = json.loads(to_str)
+
+    for user in new_data:
+        if user['From']==username:
+            emptli.append(user)
+    return make_response(jsonify(emptli)), 200
+
+
 
 
 

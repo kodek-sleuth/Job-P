@@ -79,10 +79,52 @@ class LoginView(MethodView):
             return make_response(jsonify(response)), 401
 
 
+class UpdateView(MethodView):
+    def put(self, username):
+        try:
+            check_user = Employer.query.filter_by(username=username).first()
+            if check_user:
+                request_data=request.get_json(force=True)
+
+                if 'Username' in request_data and 'Name' in request_data and 'Company' in request_data and 'Company Biography' in request_data and 'Password' in request_data and 'Country' in request_data and 'Email' in request_data:
+                    
+                    username=request_data['Username']
+                    name = request_data['Name']
+                    password=request_data['Password']
+                    company=request_data['Company']
+                    country=request_data['Country']
+                    email=request_data['Email']
+                    dev_biography=request_data['Company Biography']
+                
+                    check_user.username=username
+                    check_user.name=name
+                    check_user.password=password
+                    check_user.company=company
+                    check_user.country=country
+                    check_user.email=email
+                    check_user.dev_biography=dev_biography
+                    
+                    
+                    db.session.commit()
+                    
+                    response={
+                        "Message": "Successfully Updated Profile"
+                    }
+                    return make_response(jsonify(response)), 200
+
+                
+        except:
+            response={
+                "Message":"Failed To Update Information"
+            }
+
+
 #Creating View Function/Resources
 registrationview=RegistrationView.as_view('registrationview')
 loginview=LoginView.as_view('loginview')
+updateview=UpdateView.as_view('updateview')
 
 #adding routes to the Views we just created
 empl_auth.add_url_rule('/employer/signup', view_func=registrationview, methods=['POST'])
-empl_auth.add_url_rule('/employer/Login', view_func=loginview, methods=['POST'])
+empl_auth.add_url_rule('/employer/login', view_func=loginview, methods=['POST'])
+empl_auth.add_url_rule('/employer/<string:username>/update', view_func=updateview, methods=['PUT'])
