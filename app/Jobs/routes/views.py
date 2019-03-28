@@ -148,15 +148,16 @@ def get_applicants_of_job(job_id):
         toJson = json.loads(emp_job_applicants_str)
         return make_response(jsonify(toJson)), 200
 
-@jobs.route('/employee/<string:employee_username>/inbox', methods=['POST'])
-def send_message_to_employer(employee_username):
+@jobs.route('/employee/inbox', methods=['POST'])
+def send_message_to_employer():
     try:
         request_data = request.get_json(force=True)
         username = request_data['To <Username>']
         subject = request_data['Subject']
         description = request_data['Description']
+        from_who=request_data['From']
 
-        check_employee = Employee.query.filter_by(username=employee_username).first()
+        check_employee = Employee.query.filter_by(username=from_who).first()
         check_employer = Employer.query.filter_by(username=username).first()
 
         if check_employee and check_employer:
@@ -181,16 +182,19 @@ def send_message_to_employer(employee_username):
 
         return make_response(jsonify(response)), 401
 
-@jobs.route('/employer/<string:employer_username>/inbox', methods=['POST'])
-def send_message_to_employee(employer_username):
+@jobs.route('/employer/inbox', methods=['POST'])
+def send_message_to_employee():
     try:
         request_data = request.get_json(force=True)
         username = request_data['To <Username>']
         subject = request_data['Subject']
         description = request_data['Description']
+	    
+        from_who=request_data['From']
+
 
         check_employee = Employee.query.filter_by(username=username).first()
-        check_employer = Employer.query.filter_by(username=employer_username).first()
+        check_employer = Employer.query.filter_by(username=from_who).first()
 
         if check_employee and check_employer:
             Inbox.sendMessage(check_employee.username, subject, description, check_employer.username)

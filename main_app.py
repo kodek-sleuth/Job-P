@@ -1,7 +1,7 @@
 from app import create_app, db
 from Models.portal import *
 
-app = create_app('production')
+app = create_app('development')
 
 with app.app_context():
     db.create_all()
