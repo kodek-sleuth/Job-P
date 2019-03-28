@@ -46,7 +46,9 @@ class Employer(db.Model):
             "Company": self.company, 
             "Country": self.country,
             "Username": self.username,
-            "Date_Posted":self.Date_posted.strftime('%Y-%m-%d')
+	    "Password":self.password,
+	    "Biography":self.dev_biography,
+            "Member_Since":self.Date_posted.strftime('%Y-%m-%d')
         }
 
         return json.dumps(employer_object)
@@ -104,7 +106,11 @@ class Employee(db.Model):
             "Expertise": self.main_stack, 
             "Status": self.work_status,
             "Username": self.username,
-             "Date_Posted":self.Date_posted.strftime('%Y-%m-%d')
+	    "Password": self.password,
+	    "Other_Skills":self.other_stacks,
+	    "Biography":self.dev_biography,
+	    "Email": self.email,
+            "Member_Since":self.Date_posted.strftime('%Y-%m-%d')
         }
 
         return json.dumps(employee_object)
