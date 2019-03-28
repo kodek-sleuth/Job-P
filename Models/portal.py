@@ -110,6 +110,7 @@ class Employee(db.Model):
 	    "Other_Skills":self.other_stacks,
 	    "Biography":self.dev_biography,
 	    "Email": self.email,
+	    "Country": self.country,
             "Member_Since":self.Date_posted.strftime('%Y-%m-%d')
         }
 
