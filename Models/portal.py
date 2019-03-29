@@ -47,6 +47,7 @@ class Employer(db.Model):
             "Country": self.country,
             "Username": self.username,
 	    "Password":self.password,
+	    "Email": self.email,
 	    "Biography":self.dev_biography,
             "Member_Since":self.Date_posted.strftime('%Y-%m-%d')
         }
